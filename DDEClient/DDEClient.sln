@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DDEClient", "DDEClient\DDEClient.vcproj", "{DE941BF5-06D2-47FD-A55A-A6123505275C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE941BF5-06D2-47FD-A55A-A6123505275C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DE941BF5-06D2-47FD-A55A-A6123505275C}.Debug|Win32.Build.0 = Debug|Win32
+		{DE941BF5-06D2-47FD-A55A-A6123505275C}.Release|Win32.ActiveCfg = Release|Win32
+		{DE941BF5-06D2-47FD-A55A-A6123505275C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
