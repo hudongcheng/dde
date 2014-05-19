@@ -7,6 +7,27 @@
 #include "ddeml.h"
 #include "stdio.h"
 
+
+	//char szApp[] = "EXCEL";
+ //   char szTopic[] = "C:\\Test.xls";
+ //   char szCmd1[] = "[APP.MINIMIZE()]";
+ //   char szItem1[] = "R1C1";  char szDesc1[] = "A1 Contains: ";
+ //   char szItem2[] = "R2C1";  char szDesc2[] = "A2 Contains: ";
+ //   char szItem3[] = "R3C1";  char szData3[] = "Data from DDE Client";
+ //   char szCmd2[] = "[SELECT(\"R3C1\")][FONT.PROPERTIES(,\"Bold\")][SAVE()][QUIT()]";
+
+	char szApp[] = "MT4";
+    char szTopic[] = "BID";
+    //char szCmd1[] = "[APP.MINIMIZE()]";
+    char szItem1[] = "USDJPY";  char szDesc1[] = "A1 Contains: ";
+    char szItem2[] = "USDCHF";  char szDesc2[] = "A2 Contains: ";
+    //char szItem3[] = "R3C1";  char szData3[] = "Data from DDE Client";
+    //char szCmd2[] = "[SELECT(\"R3C1\")][FONT.PROPERTIES(,\"Bold\")][SAVE()][QUIT()]";
+
+	DWORD idInst=0;
+	    HSZ hszApp, hszTopic;
+
+
 HDDEDATA CALLBACK DdeCallback(
     UINT uType,     // Transaction type.
     UINT uFmt,      // Clipboard data format.
@@ -17,6 +38,22 @@ HDDEDATA CALLBACK DdeCallback(
     DWORD dwData1,  // Transaction-specific data.
     DWORD dwData2)  // Transaction-specific data.
 {
+	if(uType==XTYP_ADVDATA && uFmt==CF_TEXT)
+    {
+        HSZ hszItem1 = DdeCreateStringHandle(idInst, szItem1, 0);
+        HSZ hszItem2 = DdeCreateStringHandle(idInst, szItem2, 0);
+        char szResult[255];
+        if((!DdeCmpStringHandles(hsz1, hszTopic)) && (!DdeCmpStringHandles(hsz2, hszItem1)))
+        {
+            DdeGetData(hdata, (unsigned char *)szResult, 255, 0);
+            printf("%s - %s\n", szItem1,szResult);
+        }
+        else if((!DdeCmpStringHandles(hsz1, hszTopic)) && (!DdeCmpStringHandles(hsz2, hszItem2)))
+        {
+            DdeGetData(hdata, (unsigned char *)szResult, 255, 0);
+            printf("%s - %s\n", szItem2,szResult);
+        }
+    }
     return 0;
 }
 
@@ -37,7 +74,7 @@ void DDERequest(DWORD idInst, HCONV hConv, char* szItem, char* sDesc)
 {
     HSZ hszItem = DdeCreateStringHandle(idInst, szItem, 0);
     HDDEDATA hData = DdeClientTransaction(NULL,0,hConv,hszItem,CF_TEXT, 
-                                 XTYP_REQUEST,5000 , NULL);
+                                 XTYP_ADVSTART/*XTYP_REQUEST*/, TIMEOUT_ASYNC/*5000*/ , NULL);
     if (hData==NULL)
     {
         printf("Request failed: %s\n", szItem);
@@ -61,16 +98,19 @@ void DDEPoke(DWORD idInst, HCONV hConv, char* szItem, char* szData)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	char szApp[] = "EXCEL";
-    char szTopic[] = "C:\\Test.xls";
-    char szCmd1[] = "[APP.MINIMIZE()]";
-    char szItem1[] = "R1C1";  char szDesc1[] = "A1 Contains: ";
-    char szItem2[] = "R2C1";  char szDesc2[] = "A2 Contains: ";
-    char szItem3[] = "R3C1";  char szData3[] = "Data from DDE Client";
-    char szCmd2[] = "[SELECT(\"R3C1\")][FONT.PROPERTIES(,\"Bold\")][SAVE()][QUIT()]";
 
+/*
+	//MT4|ASK!EURUSD
+	char szApp[] = "MT4";
+    char szTopic[] = "ASK";
+    //char szCmd1[] = "[APP.MINIMIZE()]";
+    char szItem1[] = "USDJPY";  char szDesc1[] = "A1 Contains: ";
+    char szItem2[] = "USDCHF";  char szDesc2[] = "A2 Contains: ";
+    //char szItem3[] = "R3C1";  char szData3[] = "Data from DDE Client";
+    //char szCmd2[] = "[SELECT(\"R3C1\")][FONT.PROPERTIES(,\"Bold\")][SAVE()][QUIT()]";
+*/
     //DDE Initialization
-    DWORD idInst=0;
+    
     UINT iReturn;
     iReturn = DdeInitialize(&idInst, (PFNCALLBACK)DdeCallback, 
                             APPCLASS_STANDARD | APPCMD_CLIENTONLY, 0 );
@@ -92,7 +132,6 @@ int _tmain(int argc, _TCHAR* argv[])
     //Sleep(1000);
 
     //DDE Connect to Server using given AppName and topic.
-    HSZ hszApp, hszTopic;
     HCONV hConv;
     hszApp = DdeCreateStringHandle(idInst, szApp, 0);
     hszTopic = DdeCreateStringHandle(idInst, szTopic, 0);
@@ -106,12 +145,30 @@ int _tmain(int argc, _TCHAR* argv[])
         return 0;
     }
 
+
+
     //Execute commands/requests specific to the DDE Server.
-    DDEExecute(idInst, hConv, szCmd1);
+    //DDEExecute(idInst, hConv, szCmd1);
     DDERequest(idInst, hConv, szItem1, szDesc1); 
     DDERequest(idInst, hConv, szItem2, szDesc2);
-    DDEPoke(idInst, hConv, szItem3, szData3);
+    //DDEPoke(idInst, hConv, szItem3, szData3);
     //DDEExecute(idInst, hConv, szCmd2);
+
+		BOOL bRet;
+MSG msg;
+
+while( (bRet = GetMessage( &msg, NULL, 0, 0 )) != 0)
+{
+    if (bRet == -1)
+    {
+        // handle the error and possibly exit
+    }
+    else
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
 
     //DDE Disconnect and Uninitialize.
     DdeDisconnect(hConv);
